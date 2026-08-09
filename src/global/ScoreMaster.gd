@@ -1,4 +1,4 @@
-extends Node
+class_name ScoreMaster extends Node
 
 const LOG_VERBOSE: bool = true
 const LOG_UNNAMED: String = "<unnamed>"
@@ -10,16 +10,16 @@ static var selected_gamescore: WeakRef = null
 
 #region CONSOLE OUT
 
-func _log_standard(message: String) -> void:
+static func _log_standard(message: String) -> void:
 	print("[Score]: %s" % message)
 
-func _log_warn(message: String) -> void:
+static func _log_warn(message: String) -> void:
 	push_warning("[Score]: %s" % message)
 
-func _log_err(message: String) -> void:
+static func _log_err(message: String) -> void:
 	printerr("[Score]: %s" % message)
 
-func _print_gamescore(gamescore: GameScore = get_selected_gamescore()) -> void:
+static func _print_gamescore(gamescore: GameScore = get_selected_gamescore()) -> void:
 	print("GameScore alias: '%s'" % gamescore.alias)
 	print("\tContexts: %s" % gamescore.context)
 	print("\tPromises: %s" % gamescore.promises)
@@ -57,32 +57,32 @@ class GameScore:
 
 #region GAMESCORE
 
-func is_some_gamescore_loaded() -> bool:
+static func is_some_gamescore_loaded() -> bool:
 	return loaded_gamescores.size() > 0
 
-func create_gamescore(alias: String = "") -> GameScore:
+static func create_gamescore(alias: String = "") -> GameScore:
 	var _gamescore: GameScore = GameScore.new()
 	_gamescore.alias = alias
 	_gamescore.context = {DEFAULT_CONTEXT: []}
 	if LOG_VERBOSE: _log_standard("Created gamescore '%s'" % alias)
 	return _gamescore
 
-func append_gamescore(gamescore: GameScore) -> void:
+static func append_gamescore(gamescore: GameScore) -> void:
 	loaded_gamescores.append(gamescore)
 
-func get_selected_gamescore() -> GameScore:
+static func get_selected_gamescore() -> GameScore:
 	if selected_gamescore == null:
 		if LOG_VERBOSE: _log_warn("Can't return selected gamescore: none is selected")
 		return null
 	return selected_gamescore.get_ref()
 
-func get_gamescore_alias(gamescore: GameScore, placeholder_if_unnamed: bool = true) -> String:
+static func get_gamescore_alias(gamescore: GameScore, placeholder_if_unnamed: bool = true) -> String:
 	var _log_alias: String = gamescore.alias
 	if _log_alias.is_empty() and placeholder_if_unnamed: 
 		_log_alias = LOG_UNNAMED
 	return _log_alias
 
-func select_gamescore_at_index(slot_index: int) -> bool:
+static func select_gamescore_at_index(slot_index: int) -> bool:
 	if not is_some_gamescore_loaded():
 		if LOG_VERBOSE: _log_warn("Can't load gamescore in slot %s: no gamescores loaded" % slot_index)
 		return false
@@ -94,8 +94,7 @@ func select_gamescore_at_index(slot_index: int) -> bool:
 	if LOG_VERBOSE: _log_standard("Selected gamescore at slot %s ('%s')" % [slot_index, loaded_gamescores[slot_index].alias])
 	return true
 
-
-func select_gamescore_by_alias(alias: String) -> bool:
+static func select_gamescore_by_alias(alias: String) -> bool:
 	if not is_some_gamescore_loaded():
 		if LOG_VERBOSE: _log_warn("Can't load gamescore with alias '%s': no gamescores loaded" % alias)
 		return false
@@ -111,7 +110,7 @@ func select_gamescore_by_alias(alias: String) -> bool:
 
 #region POINTS
 
-func count_points(scores: PackedByteArray) -> int:
+static func count_points(scores: PackedByteArray) -> int:
 	var _pts: int = 0
 	for i: int in ScoreValue.MAX:
 		if i == ScoreValue.MISS or i == ScoreValue.MAX: continue
@@ -119,7 +118,7 @@ func count_points(scores: PackedByteArray) -> int:
 		_pts += (POINTS_PER_SCOREVALUE[i] * _count)
 	return _pts
 
-func get_points(context: String = DEFAULT_CONTEXT) -> int:
+static func get_points(context: String = DEFAULT_CONTEXT) -> int:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _gcontext: PackedByteArray = []
 	var _pts: int = 0
@@ -132,7 +131,7 @@ func get_points(context: String = DEFAULT_CONTEXT) -> int:
 	_gcontext = _gscore.context.get(context, _gcontext)
 	return count_points(_gcontext)
 
-func get_total_points() -> int:
+static func get_total_points() -> int:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _pts: int = 0
 	if _gscore == null:
@@ -146,7 +145,7 @@ func get_total_points() -> int:
 
 #region UTILITY
 
-func accuracy(value: float) -> ScoreValue:
+static func accuracy(value: float) -> ScoreValue:
 	var _divider: float = 1 / float(ScoreValue.MAX)
 	return roundi(value / _divider) as ScoreValue
 
@@ -154,7 +153,7 @@ func accuracy(value: float) -> ScoreValue:
 
 #region SCORING
 
-func score(value: ScoreValue, multiplier: int = 1, \
+static func score(value: ScoreValue, multiplier: int = 1, \
 		context: String = DEFAULT_CONTEXT) -> bool:
 	var _gcontext: PackedByteArray = []
 	var _scoring: PackedByteArray = []
@@ -172,13 +171,13 @@ func score(value: ScoreValue, multiplier: int = 1, \
 	_gcontext.append_array(_scoring)
 	return _gscore.context.set(context, _gcontext)
 
-func score_if(condition: bool, value: ScoreValue, multiplier: int = 1, \
+static func score_if(condition: bool, value: ScoreValue, multiplier: int = 1, \
 		context: String = DEFAULT_CONTEXT) -> void:
 	if condition: score(value, multiplier, context)
 
 #region PROMISES
 
-func promise_score(promise_name: String, value: ScoreValue) -> bool:
+static func promise_score(promise_name: String, value: ScoreValue) -> bool:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _promise: PackedByteArray = []
 	if _gscore == null:
@@ -189,11 +188,11 @@ func promise_score(promise_name: String, value: ScoreValue) -> bool:
 	_promise.append(value)
 	return _gscore.promises.set(promise_name, _promise)
 
-func promise_score_if(condition: bool, promise_name: String, \
+static func promise_score_if(condition: bool, promise_name: String, \
 		value: ScoreValue) -> void:
 	if condition: promise_score(promise_name, value)
 
-func commit_promise(promise_name: String, \
+static func commit_promise(promise_name: String, \
 		context: String = DEFAULT_CONTEXT) -> bool:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _gcontext: PackedByteArray = []
@@ -213,11 +212,11 @@ func commit_promise(promise_name: String, \
 	_gscore.promises.erase(promise_name)
 	return _gscore.context.set(context, _gcontext)
 
-func commit_promise_if(condition: bool, promise_name: String, \
+static func commit_promise_if(condition: bool, promise_name: String, \
 		context: String = DEFAULT_CONTEXT) -> void:
 	if condition: commit_promise(promise_name, context)
 
-func break_score_promise(promise_name: String) -> bool:
+static func break_score_promise(promise_name: String) -> bool:
 	var _gscore: GameScore = get_selected_gamescore()
 	if _gscore == null:
 		if LOG_VERBOSE: _log_warn("Can't break score promise: no selected gamescore")
@@ -255,7 +254,7 @@ func break_score_promise(promise_name: String) -> bool:
 		#if LOG_VERBOSE: _log_warn("Can't export JSON: no selected gamescore")
 		#return ""
 
-func load_scores(gamescores: Array[GameScore], append: bool = false) -> void:
+static func load_scores(gamescores: Array[GameScore], append: bool = false) -> void:
 	selected_gamescore = null
 	if append:
 		loaded_gamescores.append_array(gamescores)
