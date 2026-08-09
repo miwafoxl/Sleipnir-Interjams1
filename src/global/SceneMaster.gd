@@ -51,17 +51,6 @@ static func load_scene_path(scene_name: String, path: String, swap: bool = false
 	if swap: swap_scene(scene_name)
 	return true
 
-#static func load_preset(scene_name: String, swap: bool = false) -> bool:
-	#var _scn: PackedScene = null
-	#if not preset_scenes.has(scene_name):
-		#if LOG_VERBOSE: _log_warn("Failed to load preset scene '%s' - No such scene found" % scene_name)
-		#return false
-	#_scn = preset_scenes.get(scene_name)
-	#loaded_scenes.set(scene_name, _scn)
-	#if LOG_VERBOSE: _log_standard("Loaded preset scene '%s'" % scene_name)
-	#if swap: swap_scene(scene_name)
-	#return true
-
 static func load_scenes(scenes: Dictionary[String, PackedScene]) -> void:
 	for scene_name: String in scenes.keys():
 		if loaded_scenes.has(scene_name):
