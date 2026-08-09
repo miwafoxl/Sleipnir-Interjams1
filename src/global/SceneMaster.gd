@@ -5,7 +5,7 @@ const LOG_DEFAULT_SCENE: String = "default"
 
 @export var preset_scenes: Dictionary[String, PackedScene] = {}
 
-static var current_scene: WeakRef = null # Dereferences to Node
+static var current_scene: WeakRef = null # -> Node
 static var loaded_scenes: Dictionary[String, PackedScene] = {}
 
 #region CONSOLE OUT
