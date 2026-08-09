@@ -1,8 +1,8 @@
 extends Node
 
 const LOG_VERBOSE: bool = true
-const LOG_DEFAULT_SCENE: String = "default"
 
+@export var autoload_preset_at_startup: String = "default"
 @export var preset_scenes: Dictionary[String, PackedScene] = {}
 
 static var current_scene: WeakRef = null # -> Node
@@ -36,12 +36,6 @@ func swap_scene(loaded_scene: String) -> bool:
 	_main.add_child.call_deferred(_new)
 	if LOG_VERBOSE: _log_standard("Swapping to scene '%s'" % loaded_scene)
 	return true
-
-func unload_current() -> void:
-	var _cur: Node = current_scene.get_ref()
-	if not _cur == null: 
-		_cur.queue_free()
-		if LOG_VERBOSE: _log_standard("Unloading current scene")
 	
 func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bool:
 	var _scn: PackedScene = load(path)
@@ -65,9 +59,23 @@ func load_preset(scene_name: String, swap: bool = false) -> bool:
 	if swap: swap_scene(scene_name)
 	return true
 
+func unload_current() -> void:
+	var _cur: Node = current_scene.get_ref()
+	if not _cur == null: 
+		_cur.queue_free()
+		if LOG_VERBOSE: _log_standard("Unloading current scene")
+
 func unload_scene(scene_name: String) -> void:
 	if loaded_scenes.has(scene_name):
 		loaded_scenes.erase(scene_name)
 		if LOG_VERBOSE: _log_standard("Unloaded scene '%s'" % scene_name)
 
 #endregion SCENE MANAGING
+
+#region OVERRIDES
+
+func _ready() -> void:
+	if not autoload_preset_at_startup.is_empty():
+		load_preset(autoload_preset_at_startup, true)
+
+#endregion OVERRIDES
