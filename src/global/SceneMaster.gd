@@ -23,6 +23,9 @@ func _log_err(message: String) -> void:
 
 #region SCENE MANAGING 
 
+func get_current() -> Node:
+	return current_scene.get_ref() as Node
+
 func swap_scene(loaded_scene: String) -> bool:
 	var _scene: PackedScene = loaded_scenes.get(loaded_scene, null)
 	var _new: Node = null
@@ -60,7 +63,7 @@ func load_preset(scene_name: String, swap: bool = false) -> bool:
 	return true
 
 func unload_current() -> void:
-	var _cur: Node = current_scene.get_ref()
+	var _cur: Node = get_current()
 	if not _cur == null: 
 		_cur.queue_free()
 		if LOG_VERBOSE: _log_standard("Unloading current scene")
