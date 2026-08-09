@@ -64,6 +64,8 @@ static func load_scene_path(scene_name: String, path: String, swap: bool = false
 
 static func load_scenes(scenes: Dictionary[String, PackedScene]) -> void:
 	for scene_name: String in scenes.keys():
+		if loaded_scenes.has(scene_name):
+			if LOG_VERBOSE: _log_standard("Overwriting already loaded scene '%s'" % scene_name)
 		loaded_scenes.set(scene_name, scenes[scene_name])
 
 static func unload_current() -> void:
