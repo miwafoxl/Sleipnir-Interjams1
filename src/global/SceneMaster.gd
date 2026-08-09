@@ -1,4 +1,4 @@
-extends Node
+class_name SceneMaster extends Node
 
 const LOG_VERBOSE: bool = true
 
@@ -10,23 +10,23 @@ static var loaded_scenes: Dictionary[String, PackedScene] = {}
 
 #region CONSOLE OUT
 
-func _log_standard(message: String) -> void:
+static func _log_standard(message: String) -> void:
 	print("[Scene]: %s" % message)
 
-func _log_warn(message: String) -> void:
+static func _log_warn(message: String) -> void:
 	push_warning("[Scene]: %s" % message)
 
-func _log_err(message: String) -> void:
+static func _log_err(message: String) -> void:
 	printerr("[Scene]: %s" % message)
 
 #endregion CONSOLE OUT
 
 #region SCENE MANAGING 
 
-func get_current() -> Node:
+static func get_current() -> Node:
 	return current_scene.get_ref() as Node
 
-func swap_scene(loaded_scene: String) -> bool:
+static func swap_scene(loaded_scene: String) -> bool:
 	var _scene: PackedScene = loaded_scenes.get(loaded_scene, null)
 	var _new: Node = null
 	if not loaded_scenes.has(loaded_scene) or _scene == null:
@@ -40,7 +40,7 @@ func swap_scene(loaded_scene: String) -> bool:
 	if LOG_VERBOSE: _log_standard("Swapping to scene '%s'" % loaded_scene)
 	return true
 	
-func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bool:
+static func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bool:
 	var _scn: PackedScene = load(path)
 	if _scn == null:
 		if LOG_VERBOSE: _log_warn("Failed to load scene '%s'" % scene_name)
@@ -51,24 +51,28 @@ func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bo
 	if swap: swap_scene(scene_name)
 	return true
 
-func load_preset(scene_name: String, swap: bool = false) -> bool:
-	var _scn: PackedScene = null
-	if not preset_scenes.has(scene_name):
-		if LOG_VERBOSE: _log_warn("Failed to load preset scene '%s' - No such scene found" % scene_name)
-		return false
-	_scn = preset_scenes.get(scene_name)
-	loaded_scenes.set(scene_name, _scn)
-	if LOG_VERBOSE: _log_standard("Loaded preset scene '%s'" % scene_name)
-	if swap: swap_scene(scene_name)
-	return true
+#static func load_preset(scene_name: String, swap: bool = false) -> bool:
+	#var _scn: PackedScene = null
+	#if not preset_scenes.has(scene_name):
+		#if LOG_VERBOSE: _log_warn("Failed to load preset scene '%s' - No such scene found" % scene_name)
+		#return false
+	#_scn = preset_scenes.get(scene_name)
+	#loaded_scenes.set(scene_name, _scn)
+	#if LOG_VERBOSE: _log_standard("Loaded preset scene '%s'" % scene_name)
+	#if swap: swap_scene(scene_name)
+	#return true
 
-func unload_current() -> void:
+static func load_scenes(scenes: Dictionary[String, PackedScene]) -> void:
+	for scene_name: String in scenes.keys():
+		loaded_scenes.set(scene_name, scenes[scene_name])
+
+static func unload_current() -> void:
 	var _cur: Node = get_current()
 	if not _cur == null: 
 		_cur.queue_free()
 		if LOG_VERBOSE: _log_standard("Unloading current scene")
 
-func unload_scene(scene_name: String) -> void:
+static func unload_scene(scene_name: String) -> void:
 	if loaded_scenes.has(scene_name):
 		loaded_scenes.erase(scene_name)
 		if LOG_VERBOSE: _log_standard("Unloaded scene '%s'" % scene_name)
@@ -78,7 +82,8 @@ func unload_scene(scene_name: String) -> void:
 #region OVERRIDES
 
 func _ready() -> void:
+	load_scenes(preset_scenes)
 	if not autoload_preset_at_startup.is_empty():
-		load_preset(autoload_preset_at_startup, true)
+		swap_scene(autoload_preset_at_startup)
 
 #endregion OVERRIDES
