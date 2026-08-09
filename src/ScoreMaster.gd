@@ -11,13 +11,13 @@ static var selected_gamescore: WeakRef = null
 #region CONSOLE OUT
 
 func _log_standard(message: String) -> void:
-	print(message)
+	print("[Score]: %s" % message)
 
 func _log_warn(message: String) -> void:
-	push_warning(message)
+	push_warning("[Score]: %s" % message)
 
 func _log_err(message: String) -> void:
-	printerr(message)
+	printerr("[Score]: %s" % message)
 
 func _print_gamescore(gamescore: GameScore = get_selected_gamescore()) -> void:
 	print("GameScore alias: '%s'" % gamescore.alias)
