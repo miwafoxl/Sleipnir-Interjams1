@@ -1,5 +1,4 @@
-extends Node
-class_name AudioMaSTER
+class_name AudioMaster extends Node
 
 const LOG_VERBOSE: bool = true
 
