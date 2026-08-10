@@ -20,7 +20,6 @@ static func _log_err(message: String) -> void:
 	printerr("[Scene]: %s" % message)
 
 #endregion CONSOLE OUT
-
 #region SCENE MANAGING 
 
 static func get_current() -> Node:
@@ -69,7 +68,6 @@ static func unload_scene(scene_name: String) -> void:
 		if LOG_VERBOSE: _log_standard("Unloaded scene '%s'" % scene_name)
 
 #endregion SCENE MANAGING
-
 #region OVERRIDES
 
 func _ready() -> void:
