@@ -1,4 +1,4 @@
-class_name AudioMaster extends Node
+class_name SoundBlaster extends Node
 
 const LOG_VERBOSE: bool = true
 const SOUND_MAX_QUOTA: int = 16
