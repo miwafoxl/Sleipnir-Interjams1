@@ -26,7 +26,6 @@ static func _print_gamescore(gamescore: GameScore = get_selected_gamescore()) ->
 
 
 #endregion CONSOLE OUT
-
 #region DEFINITIONS
 
 enum ScoreValue {
@@ -54,7 +53,6 @@ class GameScore:
 	var promises: Dictionary[String, PackedByteArray] = {} # Promise Identf: [ScoreValue]
 	
 #endregion DEFINITIONS
-
 #region GAMESCORE
 
 static func is_some_gamescore_loaded() -> bool:
@@ -107,7 +105,6 @@ static func select_gamescore_by_alias(alias: String) -> bool:
 	return false
 
 #endregion GAMESCORE
-
 #region POINTS
 
 static func count_points(scores: PackedByteArray) -> int:
@@ -141,8 +138,7 @@ static func get_total_points() -> int:
 		_pts += count_points(context)
 	return _pts
 
-#endregion
-
+#endregion POINTS
 #region UTILITY
 
 static func accuracy(value: float) -> ScoreValue:
@@ -150,7 +146,6 @@ static func accuracy(value: float) -> ScoreValue:
 	return roundi(value / _divider) as ScoreValue
 
 #endregion UTILITY
-
 #region SCORING
 
 static func score(value: ScoreValue, multiplier: int = 1, \
@@ -228,9 +223,7 @@ static func break_score_promise(promise_name: String) -> bool:
 	return true
 
 #endregion PROMISES
-
 #endregion SCORING
-
 #region IMPORT/EXPORT
 
 # ATTENTION: essa parte tem que deserializar e serializar e eu

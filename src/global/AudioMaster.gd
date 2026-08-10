@@ -22,7 +22,6 @@ static func _log_err(message: String) -> void:
 	printerr("[Audio]: %s" % message)
 
 #endregion CONSOLE OUT
-
 #region LOADING/UNLOADING
 
 static func load_sounds(sounds: Dictionary[String, AudioEvent]) -> void:
@@ -32,7 +31,6 @@ static func load_sounds(sounds: Dictionary[String, AudioEvent]) -> void:
 		loaded_sounds.set(sound_name, sounds[sound_name])
 
 #endregion LOADING/UNLOADING
-
 #region PLAYING
 
 var tick: int = 0
@@ -69,7 +67,6 @@ static func cancel_play(sound_name: String) -> void:
 	sound_queue.filter(_has_sound)
 
 #endregion PLAYING
-
 #region OVERRIDES
 
 func _ready() -> void:
