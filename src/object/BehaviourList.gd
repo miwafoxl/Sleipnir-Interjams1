@@ -27,7 +27,7 @@ static func _log_err(message: String) -> void:
 #region MANAGING BEHAVIOURS
 
 func set_enabled(enable: bool) -> void:
-	enable
+	enabled = enable
 
 func get_behaviours(behaviour_name: StringName = &"") -> Array[Behaviour]:
 	if name.is_empty(): return behaviours
