@@ -64,10 +64,11 @@ func _process(_delta: float) -> void:
 	if enabled and tick < behaviours.size():
 		var _b: Behaviour = behaviours[tick]
 		if _b.enabled and _b.condition(_delta):
-			if _b.high_priority:
-				_b.action(_delta)
-			else:
-				_b.action.call_deferred(_delta)
+			match _b.priority:
+				Behaviour.BehaviourPriority.HIGH:
+					_b.action(_delta)
+				Behaviour.BehaviourPriority.NORMAL:
+					_b.action.call_deferred(_delta)
 		tick += 1
 	else:
 		tick = 0
