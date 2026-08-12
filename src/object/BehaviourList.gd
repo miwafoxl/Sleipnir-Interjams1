@@ -55,6 +55,23 @@ func append_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 #endregion MANAGING ACTORS
 #region BEHAVIOUR CLOCK
 
+# TODO: A behaviour with high priority and normal priority can be
+# ran at the same time since the high priority action will occur at
+# the start of the frame and the normal priority will occur at the
+# end of the frame. At the moment, normal priority ran at the end of
+# the frame but that has no difference from just running them directly,
+# since there's still one behaviour being checked per frame.
+#
+# The problem is that it will require me to separate HIGH and NORMAL
+# priority into two different ticks. First, I check the condition for
+# the NORMAL behaviour and ran, then I check if there's a HIGH priority
+# one to run alongside that.
+#
+# Maybe at _ready() I can pre-process behaviours array into other arrays
+# NormalPriority and HighPriority. The NormalPriority is checked first, 
+# runs deferred, then HighPriority is ran second and runs immediately.
+# VeryHighPriority can be checked before NormalPriority and ran immediately.
+
 var tick: int = 0
 func _process(_delta: float) -> void:
 	if refill_actors:
