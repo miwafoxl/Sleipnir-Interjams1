@@ -8,12 +8,9 @@
 
 [node name="SoundBlaster" type="Node" parent="." unique_id=1783609689]
 script = ExtResource("1_7rek1")
-metadata/_custom_type_script = "uid://ilm7n8mphts2"
 
 [node name="SceneMaster" type="Node" parent="." unique_id=1286801116]
 script = ExtResource("2_4hsr3")
-metadata/_custom_type_script = "uid://d4cwhjt2tgw3m"
 
 [node name="ScoreMaster" type="Node" parent="." unique_id=1951402427]
 script = ExtResource("3_gyckk")
-metadata/_custom_type_script = "uid://bpdxt37o4qsg5"

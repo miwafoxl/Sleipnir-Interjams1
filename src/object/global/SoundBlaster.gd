@@ -70,7 +70,6 @@ static func cancel_play(sound_name: String) -> void:
 #region OVERRIDES
 
 func _ready() -> void:
-	print(AudioServer.get_bus_count())
-	print(AudioServer.get_bus_name(2))
+	pass
 
 #endregion OVERRIDES
