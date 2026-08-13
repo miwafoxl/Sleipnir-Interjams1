@@ -25,6 +25,7 @@ static func _log_err(message: String) -> void:
 #region SCENE MANAGING 
 
 static func get_current() -> Node:
+	if current_scene == null: return null
 	return current_scene.get_ref() as Node
 
 static func swap_scene(loaded_scene: String) -> bool:
