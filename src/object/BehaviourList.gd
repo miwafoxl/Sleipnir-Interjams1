@@ -112,6 +112,7 @@ func preprocess_behaviours() -> void:
 	
 var tick_normal: int = 0
 var tick_high: int = 0
+var tick: int = 0
 func _process(delta: float) -> void:
 	if refill_actors:
 		for behaviour: Behaviour in behaviours:
@@ -119,13 +120,22 @@ func _process(delta: float) -> void:
 		refill_actors = false
 	if not vhigh_priority_pool.is_empty():
 		for _b: Behaviour in vhigh_priority_pool:
-			if _b.condition(delta): _b.action(delta)
-	var _f_end_b: Behaviour = normal_priority_pool[tick_normal]
-	var _f_start_b: Behaviour = high_priority_pool[tick_high]
-	if _f_end_b.condition(delta): _f_end_b.action.call_deferred(delta)
-	if _f_start_b.condition(delta): _f_start_b.action(delta)
-	tick_normal = (tick_normal + 1) % (normal_priority_pool.size() - 1)
-	tick_high = (tick_high + 1) % (high_priority_pool.size() - 1)
+			if _b.enabled and _b.condition(delta): _b.action(delta)
+	if not normal_priority_pool.is_empty():
+		var _f_end_b: Behaviour = normal_priority_pool[tick_normal]
+		if _f_end_b.enabled and _f_end_b.condition(delta): 
+			_f_end_b.action.call_deferred(delta)
+	if not high_priority_pool.is_empty():
+		var _f_start_b: Behaviour = high_priority_pool[tick_high]
+		if _f_start_b.enabled and _f_start_b.condition(delta): 
+			_f_start_b.action(delta)
+	tick += 1
+	tick_normal += 1
+	tick_high += 1
+	if tick_normal >= normal_priority_pool.size():
+		tick_normal = 0
+	if tick_high >= high_priority_pool.size():
+		tick_high = 0
 
 #endregion BEHAVIOUR CLOCK
 
