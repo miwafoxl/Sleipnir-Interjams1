@@ -1,6 +1,7 @@
 @abstract
 class_name Behaviour extends Resource
 
+@export_category("Behaviour Settings")
 @export var name: StringName = &"" ## A StringName that will be used for future referencing.
 @export var enabled: bool = true ## Sets if the behaviour is currently active
 @export var process: ProcessMode = ProcessMode.AUTOMATIC ## The behaviour's mode of operation. See [b]ProcessMode[/b] for more.
