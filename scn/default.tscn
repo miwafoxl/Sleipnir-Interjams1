@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://0wyvdch3vdwq"]
+
+[ext_resource type="Texture2D" uid="uid://bmfkonhm682iw" path="res://icon.svg" id="1_1wi6f"]
+[ext_resource type="Script" uid="uid://nurl1ywd3y3f" path="res://src/object/BehaviourList.gd" id="2_7heuu"]
+[ext_resource type="Script" uid="uid://cl5awp6joxymj" path="res://src/resource/Behaviour.gd" id="3_k8gec"]
+[ext_resource type="Script" uid="uid://dlog5hebtnefk" path="res://src/resource/behaviour/BRotate.gd" id="4_huuv1"]
+
+[sub_resource type="Resource" id="Resource_huuv1"]
+script = ExtResource("4_huuv1")
+amount = 0.1
+metadata/_custom_type_script = "uid://dlog5hebtnefk"
+
+[node name="Default" type="Node2D" unique_id=96861762]
+
+[node name="Icon" type="Sprite2D" parent="." unique_id=524187761]
+position = Vector2(1080, 582)
+texture = ExtResource("1_1wi6f")
+
+[node name="Icon3" type="Sprite2D" parent="." unique_id=1137830609]
+position = Vector2(576, 317)
+texture = ExtResource("1_1wi6f")
+
+[node name="BehaviourList" type="Node" parent="Icon3" unique_id=1251891214 node_paths=PackedStringArray("actors")]
+script = ExtResource("2_7heuu")
+actors = {
+"player": NodePath("..")
+}
+behaviours = Array[ExtResource("3_k8gec")]([SubResource("Resource_huuv1")])
+metadata/_custom_type_script = "uid://nurl1ywd3y3f"
+
+[node name="Icon2" type="Sprite2D" parent="." unique_id=1343005700]
+position = Vector2(62, 59)
+texture = ExtResource("1_1wi6f")
