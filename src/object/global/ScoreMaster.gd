@@ -201,7 +201,7 @@ static func commit_promise(promise_name: String, \
 		_log_warn("Can't commit score promise: no promise '%s' found" % promise_name)
 		return false
 	if not _gscore.context.has(context):
-		if LOG_VERBOSE: _log_warn("Can't commit score promise: no context '%s' found" % context)
+		_log_warn("Can't commit score promise: no context '%s' found" % context)
 		return false
 	_gcontext = _gscore.context.get(context, _gcontext)
 	_scoring = _gscore.promises.get(promise_name, _scoring)

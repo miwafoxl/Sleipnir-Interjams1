@@ -13,9 +13,11 @@ static var sound_queue: Array[String] = []
 #region CONSOLE OUT
 
 static func _log_standard(message: String) -> void:
+	if not LOG_VERBOSE: return
 	print("[Audio]: %s" % message)
 
 static func _log_warn(message: String) -> void:
+	if not LOG_VERBOSE: return
 	push_warning("[Audio]: %s" % message)
 
 static func _log_err(message: String) -> void:
@@ -27,7 +29,7 @@ static func _log_err(message: String) -> void:
 static func load_sounds(sounds: Dictionary[String, AudioEvent]) -> void:
 	for sound_name: String in sounds.keys():
 		if loaded_sounds.has(sound_name):
-			if LOG_VERBOSE: _log_standard("Overwriting already loaded sound or music '%s'" % sound_name)
+			_log_standard("Overwriting already loaded sound or music '%s'" % sound_name)
 		loaded_sounds.set(sound_name, sounds[sound_name])
 
 #endregion LOADING/UNLOADING
@@ -46,7 +48,7 @@ func play(sound_name: String) -> void:
 	var _player: AudioStreamPlayer = null
 	var _str: AudioStream = null
 	if not loaded_sounds.has(sound_name):
-		if LOG_VERBOSE: _log_warn("Can't play sound event '%s' - No such sound loaded" % sound_name)
+		_log_warn("Can't play sound event '%s' - No such sound loaded" % sound_name)
 		return
 	var _event: AudioEvent = loaded_sounds.get(sound_name)
 	var _index: int = randi_range(0, _event.stream_list.stream_count)
