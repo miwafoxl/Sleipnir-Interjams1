@@ -11,9 +11,11 @@ static var selected_gamescore: WeakRef = null
 #region CONSOLE OUT
 
 static func _log_standard(message: String) -> void:
+	if not LOG_VERBOSE: return
 	print("[Score]: %s" % message)
 
 static func _log_warn(message: String) -> void:
+	if not LOG_VERBOSE: return
 	push_warning("[Score]: %s" % message)
 
 static func _log_err(message: String) -> void:
@@ -62,7 +64,7 @@ static func create_gamescore(alias: String = "") -> GameScore:
 	var _gamescore: GameScore = GameScore.new()
 	_gamescore.alias = alias
 	_gamescore.context = {DEFAULT_CONTEXT: []}
-	if LOG_VERBOSE: _log_standard("Created gamescore '%s'" % alias)
+	_log_standard("Created gamescore '%s'" % alias)
 	return _gamescore
 
 static func append_gamescore(gamescore: GameScore) -> void:
@@ -70,7 +72,7 @@ static func append_gamescore(gamescore: GameScore) -> void:
 
 static func get_selected_gamescore() -> GameScore:
 	if selected_gamescore == null:
-		if LOG_VERBOSE: _log_warn("Can't return selected gamescore: none is selected")
+		_log_warn("Can't return selected gamescore: none is selected")
 		return null
 	return selected_gamescore.get_ref()
 
@@ -82,26 +84,26 @@ static func get_gamescore_alias(gamescore: GameScore, placeholder_if_unnamed: bo
 
 static func select_gamescore_at_index(slot_index: int) -> bool:
 	if not is_some_gamescore_loaded():
-		if LOG_VERBOSE: _log_warn("Can't load gamescore in slot %s: no gamescores loaded" % slot_index)
+		_log_warn("Can't load gamescore in slot %s: no gamescores loaded" % slot_index)
 		return false
 	if slot_index > loaded_gamescores.size() - 1:
-		if LOG_VERBOSE: _log_warn("Can't load gamescore in slot %s: index not loaded" % slot_index)
+		_log_warn("Can't load gamescore in slot %s: index not loaded" % slot_index)
 		return false
 	selected_gamescore = weakref(loaded_gamescores[slot_index])
 	var _log_alias: String = get_gamescore_alias(loaded_gamescores[slot_index], true)
-	if LOG_VERBOSE: _log_standard("Selected gamescore at slot %s ('%s')" % [slot_index, loaded_gamescores[slot_index].alias])
+	_log_standard("Selected gamescore at slot %s ('%s')" % [slot_index, loaded_gamescores[slot_index].alias])
 	return true
 
 static func select_gamescore_by_alias(alias: String) -> bool:
 	if not is_some_gamescore_loaded():
-		if LOG_VERBOSE: _log_warn("Can't load gamescore with alias '%s': no gamescores loaded" % alias)
+		_log_warn("Can't load gamescore with alias '%s': no gamescores loaded" % alias)
 		return false
 	for i in loaded_gamescores.size():
 		var _score: GameScore = loaded_gamescores[i]
 		if _score.alias == alias:
 			select_gamescore_at_index(i)
 			return true
-	if LOG_VERBOSE: _log_warn("Can't load gamescore with alias '%s': not found" % alias)
+	_log_warn("Can't load gamescore with alias '%s': not found" % alias)
 	return false
 
 #endregion GAMESCORE
@@ -120,10 +122,10 @@ static func get_points(context: String = DEFAULT_CONTEXT) -> int:
 	var _gcontext: PackedByteArray = []
 	var _pts: int = 0
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't get score: no selected gamescore")
+		_log_warn("Can't get score: no selected gamescore")
 		return false
 	if not _gscore.context.has(context):
-		if LOG_VERBOSE: _log_warn("Can't get score: no context '%s' found" % context)
+		_log_warn("Can't get score: no context '%s' found" % context)
 		return false
 	_gcontext = _gscore.context.get(context, _gcontext)
 	return count_points(_gcontext)
@@ -132,7 +134,7 @@ static func get_total_points() -> int:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _pts: int = 0
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't get score: no selected gamescore")
+		_log_warn("Can't get score: no selected gamescore")
 		return false
 	for context: PackedByteArray in _gscore.context.values():
 		_pts += count_points(context)
@@ -154,10 +156,10 @@ static func score(value: ScoreValue, multiplier: int = 1, \
 	var _scoring: PackedByteArray = []
 	var _gscore: GameScore = get_selected_gamescore()
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't place score: no selected gamescore")
+		_log_warn("Can't place score: no selected gamescore")
 		return false
 	if (value >= ScoreValue.MAX) or (value < 0):
-		if LOG_VERBOSE: _log_warn("Can't place score: illegal score value %s" % value)
+		_log_warn("Can't place score: illegal score value %s" % value)
 		return false
 	if _gscore.context.has(context):
 		_gcontext = _gscore.context.get(context, _gcontext)
@@ -176,7 +178,7 @@ static func promise_score(promise_name: String, value: ScoreValue) -> bool:
 	var _gscore: GameScore = get_selected_gamescore()
 	var _promise: PackedByteArray = []
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't place score promise: no selected gamescore")
+		_log_warn("Can't place score promise: no selected gamescore")
 		return false
 	if _gscore.promises.has(promise_name):
 		_promise = _gscore.promises.get(promise_name, _promise)
@@ -193,10 +195,10 @@ static func commit_promise(promise_name: String, \
 	var _gcontext: PackedByteArray = []
 	var _scoring: PackedByteArray = []
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't commit score promise: no selected gamescore")
+		_log_warn("Can't commit score promise: no selected gamescore")
 		return false
 	if not _gscore.promises.has(promise_name):
-		if LOG_VERBOSE: _log_warn("Can't commit score promise: no promise '%s' found" % promise_name)
+		_log_warn("Can't commit score promise: no promise '%s' found" % promise_name)
 		return false
 	if not _gscore.context.has(context):
 		if LOG_VERBOSE: _log_warn("Can't commit score promise: no context '%s' found" % context)
@@ -214,10 +216,10 @@ static func commit_promise_if(condition: bool, promise_name: String, \
 static func break_score_promise(promise_name: String) -> bool:
 	var _gscore: GameScore = get_selected_gamescore()
 	if _gscore == null:
-		if LOG_VERBOSE: _log_warn("Can't break score promise: no selected gamescore")
+		_log_warn("Can't break score promise: no selected gamescore")
 		return false
 	if not _gscore.promises.has(promise_name):
-		if LOG_VERBOSE: _log_warn("Can't break score promise: no promise '%s' found" % promise_name)
+		_log_warn("Can't break score promise: no promise '%s' found" % promise_name)
 		return false
 	_gscore.promises.erase(promise_name)
 	return true
@@ -236,7 +238,7 @@ static func break_score_promise(promise_name: String) -> bool:
 		#OK:
 			#_scores_dict.assign(_json.get_data())
 		#_:
-			#if LOG_VERBOSE: _log_warn("Can't decode JSON: unable to " + \
+			#if _log_warn("Can't decode JSON: unable to " + \
 			#"parse json string (%s)" % _json.get_error_message())
 			#return {}
 	#return _scores_dict
@@ -244,7 +246,7 @@ static func break_score_promise(promise_name: String) -> bool:
 #func export_json() -> String:
 	#var _gscore: GameScore = get_selected_gamescore()
 	#if _gscore == null:
-		#if LOG_VERBOSE: _log_warn("Can't export JSON: no selected gamescore")
+		#if _log_warn("Can't export JSON: no selected gamescore")
 		#return ""
 
 static func load_scores(gamescores: Array[GameScore], append: bool = false) -> void:
