@@ -28,7 +28,7 @@ static func get_current() -> Node:
 	if current_scene == null: return null
 	return current_scene.get_ref() as Node
 
-static func swap_scene(loaded_scene: String) -> bool:
+func swap_scene(loaded_scene: String) -> bool:
 	var _scene: PackedScene = loaded_scenes.get(loaded_scene, null)
 	var _new: Node = null
 	if not loaded_scenes.has(loaded_scene) or _scene == null:
@@ -37,12 +37,12 @@ static func swap_scene(loaded_scene: String) -> bool:
 	unload_current()
 	_new = _scene.instantiate()
 	current_scene = weakref(_new)
-	var _main: Node = SceneTree.root
+	var _main: Node = get_parent()
 	_main.add_child.call_deferred(_new)
 	_log_standard("Swapping to scene '%s'" % loaded_scene)
 	return true
 	
-static func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bool:
+func load_scene_path(scene_name: String, path: String, swap: bool = false) -> bool:
 	var _scn: PackedScene = load(path)
 	if _scn == null:
 		_log_warn("Failed to load scene '%s'" % scene_name)
