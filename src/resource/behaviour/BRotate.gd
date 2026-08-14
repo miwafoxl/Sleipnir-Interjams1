@@ -4,8 +4,10 @@ class_name BRotate extends Behaviour
 
 var player: Sprite2D
 
-func condition(_delta: float) -> bool:
+func init() -> void:
 	player = actors.get("player") as Sprite2D
+
+func condition(_delta: float) -> bool:
 	return true
 
 func action(_delta: float) -> bool:

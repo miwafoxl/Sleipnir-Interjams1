@@ -37,6 +37,11 @@ func set_enabled(enable: bool) -> void:
 #endregion MANAGING BEHAVIOUR
 #region OVERRIDEABLES
 
+## This method is called automatically by [code]BehaviourList[/code] once it populates
+## the [code]actors[/code] variable at runtime.
+@abstract
+func init() -> void
+
 ## This method is called automatically by [code]BehaviourList[/code] where it will test
 ## whether if [code]action()[/code] can be ran.
 @abstract
