@@ -21,16 +21,16 @@ var normal_priority_pool: Array[Behaviour] = []
 
  #region CONSOLE OUT
 
-static func _log_standard(message: String) -> void:
-	if not LOG_VERBOSE: return
-	print("[BehaviourList]: %s" % message)
+func _log_standard(message: String) -> void:
+	if not verbose: return
+	print("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
 
-static func _log_warn(message: String) -> void:
-	if not LOG_VERBOSE: return
-	push_warning("[BehaviourList]: %s" % message)
+func _log_warn(message: String) -> void:
+	if not verbose: return
+	push_warning("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
 
-static func _log_err(message: String) -> void:
-	printerr("[BehaviourList]: %s" % message)
+func _log_err(message: String) -> void:
+	printerr("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
 
 #endregion CONSOLE OUT
 #region MANAGING BEHAVIOURS
