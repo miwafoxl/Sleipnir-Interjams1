@@ -23,14 +23,14 @@ var normal_priority_pool: Array[Behaviour] = []
 
 func _log_standard(message: String) -> void:
 	if not verbose: return
-	print("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
+	print("[BehaviourList]: %s" % [message])
 
 func _log_warn(message: String) -> void:
 	if not verbose: return
-	push_warning("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
+	push_warning("[BehaviourList]: %s" % [message])
 
 func _log_err(message: String) -> void:
-	printerr("[%s]: %s" % [CLASS_BEHAVIOUR_NODE, message])
+	printerr("[BehaviourList]: %s" % [message])
 
 #endregion CONSOLE OUT
 #region MANAGING BEHAVIOURS
@@ -41,7 +41,7 @@ static func get_behaviourlist(object: Node) -> BehaviourList:
 	for _node: Node in _children:
 		if _node is BehaviourList:
 			return _node as BehaviourList
-	push_warning("Could not get %s from object %s" % [CLASS_BEHAVIOUR_NODE, object.to_string()])
+	push_warning("Could not get BehaviourList from object %s" % object.to_string())
 	return null
 
 func set_enabled(enable: bool) -> void:
@@ -125,9 +125,8 @@ func preprocess_behaviours() -> void:
 	for _b: Behaviour in _normal_priority_spool:
 		normal_priority_pool.append(_b)
 	_log_standard( \
-		"%s Preprocess:\n-F_END: %s\nF_START: %s\nALWAYS: %s" % \
-		[CLASS_BEHAVIOUR_NODE, normal_priority_pool, \
-		high_priority_pool, vhigh_priority_pool])
+		"Behaviours Preprocess:\n-F_END: %s\nF_START: %s\nALWAYS: %s" % \
+		[normal_priority_pool, high_priority_pool, vhigh_priority_pool])
 	tick_normal = 0; tick_high = 0 # Reset ticks
 	
 var tick_normal: int = 0
