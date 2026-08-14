@@ -35,6 +35,15 @@ func _log_err(message: String) -> void:
 #endregion CONSOLE OUT
 #region MANAGING BEHAVIOURS
 
+# TODO: This is slow as shi*!!!!!!!!!!!!!*
+static func get_behaviourlist(object: Node) -> BehaviourList:
+	var _children: Array[Node] = object.get_children(false)
+	for _node: Node in _children:
+		if _node is BehaviourList:
+			return _node as BehaviourList
+	push_warning("Could not get %s from object %s" % [CLASS_BEHAVIOUR_NODE, object.to_string()])
+	return null
+
 func set_enabled(enable: bool) -> void:
 	enabled = enable
 
