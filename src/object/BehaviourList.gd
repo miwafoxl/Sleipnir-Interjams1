@@ -82,12 +82,19 @@ func get_actor(actor_name: String) -> Node:
 
 func remove_actor(actor_name: String) -> void:
 	if not actors.erase(actor_name):
-		_log_warn("Actor '%s' wasn't removed - Wasn't in actors" % actor_name)
-	_log_standard("Append actor '%s'" % actor_name)
+		return _log_warn("Actor '%s' wasn't removed - Wasn't in actors" % actor_name)
+	_log_standard("Removed actor '%s'" % actor_name)
+	refill_behaviours_actors()
 
-func append_actor(actor_name: String, node: Node) -> bool:
-	_log_standard("Append actor '%s'" % actor_name)
-	return actors.set(actor_name, node)
+func add_actor(actor_name: String, node: Node, overwrite: bool = true) -> bool:
+	var _can_overwrite: bool = actors.has(actor_name)
+	if _can_overwrite and not overwrite:
+		return true
+	if not actors.set(actor_name, node):
+		return false
+	_log_standard("Added actor '%s' %s" % [actor_name, ["", "(overwritten)"][_can_overwrite as int]])
+	refill_behaviours_actors()
+	return true
 
 #endregion MANAGING ACTORS
 #region BEHAVIOUR CLOCK
