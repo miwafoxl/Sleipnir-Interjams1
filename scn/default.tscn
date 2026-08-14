@@ -61,6 +61,7 @@ texture = ExtResource("1_1wi6f")
 
 [node name="BehaviourList" type="Node" parent="Icon3" unique_id=1251891214 node_paths=PackedStringArray("actors")]
 script = ExtResource("2_7heuu")
+enabled = null
 verbose = true
 actors = {
 "player": NodePath("..")

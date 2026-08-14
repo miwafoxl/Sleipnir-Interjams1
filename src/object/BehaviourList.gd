@@ -1,8 +1,7 @@
 class_name BehaviourList extends Node
 
-const LOG_VERBOSE: bool = true
-
 @export var enabled: bool = true
+@export var verbose: bool = false
 @export var actors: Dictionary[String, Node] = {} # Actor ID: Node
 @export var behaviours: Array[Behaviour] = []
 
