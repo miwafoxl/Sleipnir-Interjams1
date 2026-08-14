@@ -71,6 +71,12 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 #endregion MANAGING BEHAVIOURS
 #region MANAGING ACTORS
 
+func refill_behaviours_actors() -> void:
+	if behaviours.is_empty(): return
+	for behaviour: Behaviour in behaviours:
+		behaviour.actors = actors
+		behaviour.init()
+
 func get_actor(actor_name: String) -> Node:
 	return actors.get(actor_name, null)
 
@@ -112,23 +118,22 @@ func preprocess_behaviours() -> void:
 	for _b: Behaviour in _normal_priority_spool:
 		normal_priority_pool.append(_b)
 	_log_standard( \
-		"BehaviourList Preprocess:\n-F_END: %s\nF_START: %s\nALWAYS: %s" % \
-		[normal_priority_pool, high_priority_pool, vhigh_priority_pool])
-	# Reset ticks
-	tick_normal = 0
-	tick_high = 0
+		"%s Preprocess:\n-F_END: %s\nF_START: %s\nALWAYS: %s" % \
+		[CLASS_BEHAVIOUR_NODE, normal_priority_pool, \
+		high_priority_pool, vhigh_priority_pool])
+	tick_normal = 0; tick_high = 0 # Reset ticks
 	
 var tick_normal: int = 0
 var tick_high: int = 0
-var tick: int = 0
+var tick: int = 0 # Not used, mostly for debugging
 func _process(delta: float) -> void:
 	if refill_actors:
-		for behaviour: Behaviour in behaviours:
-			behaviour.actors = actors
+		refill_behaviours_actors()
 		refill_actors = false
 	if not vhigh_priority_pool.is_empty():
 		for _b: Behaviour in vhigh_priority_pool:
-			if _b.enabled and _b.condition(delta): _b.action(delta)
+			if _b.enabled and _b.condition(delta): 
+				_b.action(delta)
 	if not normal_priority_pool.is_empty():
 		var _f_end_b: Behaviour = normal_priority_pool[tick_normal]
 		if _f_end_b.enabled and _f_end_b.condition(delta): 
@@ -144,9 +149,10 @@ func _process(delta: float) -> void:
 		tick_normal = 0
 	if tick_high >= high_priority_pool.size():
 		tick_high = 0
+	if tick > 1000:
+		tick = 0
 
 #endregion BEHAVIOUR CLOCK
-
 #region OVERRIDES
 
 func _ready() -> void:
