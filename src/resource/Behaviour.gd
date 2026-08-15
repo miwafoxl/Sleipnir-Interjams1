@@ -33,7 +33,7 @@ var actors: Dictionary[String, Node]
 ## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
 ## [code]null[/code] if it wasn't found. If no name is specified, returns
 ## parent node.
-func get_actor(actor_name: String = "parent") -> Node:
+func get_actor(actor_name: String = BehaviourList.PARENT_NODE_ACTOR) -> Node:
 	return actors.get(actor_name, null)
 
 ## Sets this behaviour enabled. 
