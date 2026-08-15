@@ -60,10 +60,18 @@ static func get_behaviourlist(object: Node) -> BehaviourList:
 func set_enabled(enable: bool) -> void:
 	enabled = enable
 
+## Obtains a single behaviour that match [code]behaviour_name[/code]. Returns null
+## if no match was found.
+func get_behaviour(behaviour_name: StringName = &"") -> Behaviour:
+	for behaviour: Behaviour in behaviours:
+		if behaviour.name == behaviour_name:
+			return behaviour
+	return null
+
 ## Obtains all behaviours that match [code]behaviour_name[/code]. Returns an empty
 ## [Array] if no match was found.
 func get_behaviours(behaviour_name: StringName = &"") -> Array[Behaviour]:
-	if name.is_empty(): return behaviours
+	if behaviour_name.is_empty(): return behaviours
 	var _selected: Array[Behaviour] = []
 	for behaviour: Behaviour in behaviours:
 		if behaviour.name == behaviour_name:
