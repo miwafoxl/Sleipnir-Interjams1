@@ -72,7 +72,7 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 #region MANAGING ACTORS
 
 func refill_behaviours_actors() -> void:
-	if behaviours.is_empty(): return
+	actors.set("parent", get_parent())
 	for behaviour: Behaviour in behaviours:
 		behaviour.actors = actors
 		behaviour.init()
