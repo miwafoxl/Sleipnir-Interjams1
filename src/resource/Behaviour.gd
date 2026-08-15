@@ -15,7 +15,7 @@ class_name Behaviour extends Resource
 ## [code]condition()[/code] returns true.[br][br]
 ## - [code]ALWAYS[/code]: Checks and runs [code]action()[/code] for
 ## each frame before everything else.[br][br]
-## [b]Warning:[/b] [code]ALWAYS[/code] should be sparingly as it might
+## [b]Warning:[/b] [code]ALWAYS[/code] should be used sparingly as it might
 ## slow down runtime performance.
 enum ProcessMode {
 	AUTOMATIC, ## Alternates between [code]F_START[/code] and [code]F_END[/code].
@@ -24,30 +24,36 @@ enum ProcessMode {
 	ALWAYS, ## Checks and runs [code]action()[/code] for each frame before everything else.
 }
 
-## The [code]BehaviourList[/code] will populate this field with context nodes in which 
+## The [BehaviourList] will populate this field with context nodes in which 
 ## [code]action()[/code] and [code]condition()[/code] can borrow values from.
 var actors: Dictionary[String, Node]
 
-#region MANAGING BEHAVIOUR
+#region MANAGING
 
-## Sets this Behaviour enabled. 
+## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
+## [code]null[/code] if it wasn't found. If no name is specified, returns
+## parent node.
+func get_actor(actor_name: String = "parent") -> Node:
+	return actors.get(actor_name, null)
+
+## Sets this behaviour enabled. 
 func set_enabled(enable: bool) -> void:
 	enabled = enable
 
-#endregion MANAGING BEHAVIOUR
+#endregion MANAGING
 #region OVERRIDEABLES
 
-## This method is called automatically by [code]BehaviourList[/code] once it populates
+## This method is called automatically by [BehaviourList] once it populates
 ## the [code]actors[/code] variable at runtime.
 @abstract
 func init() -> void
 
-## This method is called automatically by [code]BehaviourList[/code] where it will test
+## This method is called automatically by [BehaviourList] where it will test
 ## whether if [code]action()[/code] can be ran.
 @abstract
 func condition(delta: float) -> bool
 
-## This method is called automatically by [code]BehaviourList[/code], which provides
+## This method is called automatically by [BehaviourList], which provides
 ## action for a met criteria given by [code]condition()[/code].
 @abstract
 func action(delta: float) -> bool

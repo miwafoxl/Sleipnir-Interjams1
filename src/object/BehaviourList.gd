@@ -36,6 +36,15 @@ func _log_err(message: String) -> void:
 #region MANAGING BEHAVIOURS
 
 # TODO: This is slow as shi*!!!!!!!!!!!!!*
+## Obtains the [BehaviourList] if it's present in [code]node[/code] and returns it.
+## Returns [code]null [/code] if not found.[br]
+## [codeblock lang=gdscript]
+## # Does this node have Bullet behaviour?
+## var list := BehaviourList.get_behaviourlist(some_node);
+## var bullet_behaviour := list.get_behaviours(&"bullet");
+## if not behaviours.is_empty(): # It must be a bullet...
+## 		glass_break()  # Let's shatter!
+## [/codeblock]
 static func get_behaviourlist(object: Node) -> BehaviourList:
 	var _children: Array[Node] = object.get_children(false)
 	for _node: Node in _children:
@@ -44,9 +53,13 @@ static func get_behaviourlist(object: Node) -> BehaviourList:
 	push_warning("Could not get BehaviourList from object %s" % object.to_string())
 	return null
 
+## Set this BehaviourList enabled. A disabled BehaviourList will disable
+## all its containing [Behaviour]s.
 func set_enabled(enable: bool) -> void:
 	enabled = enable
 
+## Obtains all behaviours that match [code]behaviour_name[/code]. Returns an empty
+## [Array] if no match was found.
 func get_behaviours(behaviour_name: StringName = &"") -> Array[Behaviour]:
 	if name.is_empty(): return behaviours
 	var _selected: Array[Behaviour] = []
@@ -55,6 +68,7 @@ func get_behaviours(behaviour_name: StringName = &"") -> Array[Behaviour]:
 			_selected.append(behaviour)
 	return _selected
 
+## Remove behaviours from list that match [code]behaviour_name[/code].
 func remove_behaviours(behaviour_name: StringName = &"") -> void:
 	if name.is_empty(): return
 	var _count = behaviours.count(behaviour_name)
@@ -63,6 +77,8 @@ func remove_behaviours(behaviour_name: StringName = &"") -> void:
 	behaviours = behaviours.filter(_remove)
 	_log_standard("Removed %s '%s' behaviour(s)." % [_count, behaviour_name])
 
+## Insert the behaviour [code]behaviour[/code] following the index [code]at_index[/code].
+## If negative, the value will be considered from the end of the array.
 func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 	preprocess_behaviours.call_deferred()
 	_log_standard("Inserted behaviour '%s'" % behaviour.name)
@@ -71,21 +87,31 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 #endregion MANAGING BEHAVIOURS
 #region MANAGING ACTORS
 
+## Updates each behaviour with a new [code]actors[/code] value, then runs [code]init()[/code].
+## This ensures that all behaviours have a reference to the actors array. It's ran
+## automatically by [method BehaviourList.preprocess_behaviours] and other methods.
 func refill_behaviours_actors() -> void:
 	actors.set("parent", get_parent())
 	for behaviour: Behaviour in behaviours:
 		behaviour.actors = actors
 		behaviour.init()
 
+## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
+## [code]null[/code] if it wasn't found. If no name is specified, returns
+## parent node.
 func get_actor(actor_name: String) -> Node:
 	return actors.get(actor_name, null)
 
+## Remove behaviours from list that match [code]actor_name[/code].
 func remove_actor(actor_name: String) -> void:
 	if not actors.erase(actor_name):
 		return _log_warn("Actor '%s' wasn't removed - Wasn't in actors" % actor_name)
 	_log_standard("Removed actor '%s'" % actor_name)
 	refill_behaviours_actors()
 
+## Adds a new actor [code]actor_name[/code] with [code]node[/code] value that can be accessed
+## by behaviours (See [method Behaviour.get_actor]). If [code]overwrite[/code] is true, 
+## overwrites on top of existing data. Returns true if operation was successful.
 func add_actor(actor_name: String, node: Node, overwrite: bool = true) -> bool:
 	var _can_overwrite: bool = actors.has(actor_name)
 	if _can_overwrite and not overwrite:
@@ -99,6 +125,13 @@ func add_actor(actor_name: String, node: Node, overwrite: bool = true) -> bool:
 #endregion MANAGING ACTORS
 #region BEHAVIOUR CLOCK
 
+## Called automatically by [BehaviourList], sorts behaviours into three different pools: 
+## [b]F_END[/b], [b]F_START[/b] and [b]ALWAYS[/b]. Those are then stored at variables
+## [code]normal_priority_pool[/code], [code]high_priority_pool[/code] and
+## [code]vhigh_priority_pool[/code]. [br][br]If behaviours are
+## set to [code]AUTOMATIC[/code], it will try to balance [code]normal_priority_pool[/code]
+## and [code]high_priority_pool[/code] array sizes evenly in an effort to minimize the
+## the behaviour clock from favoring a single behaviour by checking it every frame.
 func preprocess_behaviours() -> void:
 	var _auto: bool = false
 	var _high_priority_spool: Array[Behaviour] = [] # Subpool
