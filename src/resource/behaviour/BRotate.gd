@@ -11,5 +11,5 @@ func condition(_delta: float) -> bool:
 	return true
 
 func action(_delta: float) -> bool:
-	player.rotate(amount)
+	player.rotate(-amount)
 	return true
