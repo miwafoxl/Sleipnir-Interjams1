@@ -10,7 +10,6 @@ config_version=5
 
 [application]
 
-config/name="Interjams1"
 run/main_scene="uid://bj3db1dyycyj6"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
