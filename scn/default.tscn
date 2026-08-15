@@ -59,12 +59,9 @@ texture = ExtResource("1_1wi6f")
 position = Vector2(576, 317)
 texture = ExtResource("1_1wi6f")
 
-[node name="BehaviourList" type="Node" parent="Icon3" unique_id=1251891214 node_paths=PackedStringArray("actors")]
+[node name="BehaviourList" type="Node" parent="Icon3" unique_id=1251891214]
 script = ExtResource("2_7heuu")
 verbose = true
-actors = {
-"player": NodePath("..")
-}
 behaviours = Array[ExtResource("3_k8gec")]([SubResource("Resource_huuv1")])
 metadata/_custom_type_script = "uid://nurl1ywd3y3f"
 
