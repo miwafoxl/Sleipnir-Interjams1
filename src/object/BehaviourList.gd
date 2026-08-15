@@ -1,5 +1,7 @@
 class_name BehaviourList extends Node
 
+const PARENT_NODE_ACTOR: String = "parent"
+
 @export var enabled: bool = true
 @export var verbose: bool = false
 @export var actors: Dictionary[String, Node] = {} # Actor ID: Node
@@ -91,7 +93,7 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 ## This ensures that all behaviours have a reference to the actors array. It's ran
 ## automatically by [method BehaviourList.preprocess_behaviours] and other methods.
 func refill_behaviours_actors() -> void:
-	actors.set("parent", get_parent())
+	actors.set(PARENT_NODE_ACTOR, get_parent())
 	for behaviour: Behaviour in behaviours:
 		behaviour.actors = actors
 		behaviour.init()
@@ -99,7 +101,7 @@ func refill_behaviours_actors() -> void:
 ## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
 ## [code]null[/code] if it wasn't found. If no name is specified, returns
 ## parent node.
-func get_actor(actor_name: String) -> Node:
+func get_actor(actor_name: String = PARENT_NODE_ACTOR) -> Node:
 	return actors.get(actor_name, null)
 
 ## Remove behaviours from list that match [code]actor_name[/code].
