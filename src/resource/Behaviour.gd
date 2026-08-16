@@ -45,17 +45,27 @@ func set_enabled(enable: bool) -> void:
 
 ## This method is called automatically by [BehaviourList] once it populates
 ## the [code]actors[/code] variable at runtime.
-@abstract
-func init() -> void
+func init() -> void:
+	pass
 
 ## This method is called automatically by [BehaviourList] where it will test
 ## whether if [code]action()[/code] can be ran.
-@abstract
-func condition(delta: float) -> bool
+@warning_ignore("unused_parameter")
+func condition(delta: float) -> bool:
+	return true
+
+@warning_ignore("unused_parameter")
+func condition_physics(delta: float) -> bool:
+	return true
 
 ## This method is called automatically by [BehaviourList], which provides
 ## action for a met criteria given by [code]condition()[/code].
-@abstract
-func action(delta: float) -> bool
+@warning_ignore("unused_parameter")
+func action(delta: float) -> void:
+	pass
+
+@warning_ignore("unused_parameter")
+func action_physics(delta: float) -> void:
+	pass
 
 #endregion OVERRIDEABLES
