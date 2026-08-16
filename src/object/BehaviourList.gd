@@ -46,7 +46,10 @@ func _log_err(message: String) -> void:
 ## var bullet_behaviour := list.get_behaviours(&"bullet");
 ## if not behaviours.is_empty(): # It must be a bullet...
 ## 		glass_break()  # Let's shatter!
-## [/codeblock]
+## [/codeblock][br][br]
+## Please use [method BehaviourList.get_behaviour_from] or 
+## [method BehaviourList.has_behaviour] instead.
+## @deprecated
 static func get_behaviourlist(object: Node) -> BehaviourList:
 	var _children: Array[Node] = object.get_children(false)
 	for _node: Node in _children:
