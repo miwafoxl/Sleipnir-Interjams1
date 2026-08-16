@@ -10,6 +10,5 @@ func init() -> void:
 func condition(_delta: float) -> bool:
 	return true
 
-func action(_delta: float) -> bool:
+func action(_delta: float) -> void:
 	player.rotate(-amount)
-	return true
