@@ -240,6 +240,12 @@ func _process(delta: float) -> void:
 	if tick > 1000:
 		tick = 0
 
+func _physics_process(delta: float) -> void:
+	if not behaviours.is_empty():
+		for _b: Behaviour in behaviours:
+			if _b.enabled and _b.condition_physics(delta): 
+				_b.action_physics(delta)
+
 #endregion BEHAVIOUR CLOCK
 #region OVERRIDES
 
