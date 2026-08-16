@@ -58,6 +58,42 @@ static func get_behaviourlist(object: Node) -> BehaviourList:
 	push_warning("Could not get BehaviourList from object %s" % object.to_string())
 	return null
 
+## Obtains a [Behaviour] from a [Node] that has [BehaviourList]. 
+## Returns [code]null[/code] if BehaviourList isn't present in object.[br]
+## [codeblock lang=gdscript]
+## var bullet := BehaviourList.get_behaviour_from(some_node, &"bullet");
+## if not bullet == null: # It must be a bullet...
+## 		bullet.set_speed(36)  # How convenient
+## [/codeblock]
+static func get_behaviour_from(object: Node, behaviour_name: StringName) -> Behaviour:
+	var _children: Array[Node] = object.get_children(false)
+	var _behaviour: Behaviour = null
+	for _node: Node in _children:
+		if _node is BehaviourList:
+			var _list: BehaviourList = _node as BehaviourList
+			_behaviour = _list.get_behaviour(behaviour_name)
+	if _behaviour == null:
+		push_warning("Could not get BehaviourList from object %s" % object.to_string())
+	return _behaviour
+
+## Checks whether [code]behaviour_name[/code] is present in a [BehaviourList] of object. 
+## Returns [code]false[/code] if behaviour was not found or BehaviourList isn't 
+## present in object.[br]
+## [codeblock lang=gdscript]
+## var toxic: bool = BehaviourList.has_behaviour(some_node, &"toxic");
+## if toxic:
+## 		self.poison()
+## [/codeblock]
+static func has_behaviour(object: Node, behaviour_name: StringName) -> bool:
+	var _children: Array[Node] = object.get_children(false)
+	var _behaviour: Behaviour = null
+	for _node: Node in _children:
+		if _node is BehaviourList:
+			var _list: BehaviourList = _node as BehaviourList
+			if not _list.get_behaviour(behaviour_name) == null:
+				return true
+	return false
+
 ## Set this BehaviourList enabled. A disabled BehaviourList will disable
 ## all its containing [Behaviour]s.
 func set_enabled(enable: bool) -> void:
