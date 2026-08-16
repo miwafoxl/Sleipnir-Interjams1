@@ -241,6 +241,9 @@ func _process(delta: float) -> void:
 		tick = 0
 
 func _physics_process(delta: float) -> void:
+	if refill_actors:
+		refill_behaviours_actors()
+		refill_actors = false
 	if not behaviours.is_empty():
 		for _b: Behaviour in behaviours:
 			if _b.enabled and _b.condition_physics(delta): 
