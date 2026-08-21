@@ -1,6 +1,9 @@
 @abstract
 class_name Behaviour extends Resource
 
+@warning_ignore("unused_signal")
+signal event
+
 @export_category("Behaviour Settings")
 @export var name: StringName = &"" ## A StringName that will be used for future referencing.
 @export var enabled: bool = true ## Sets if the behaviour is currently active
@@ -24,7 +27,7 @@ enum ProcessMode {
 	ALWAYS, ## Checks and runs [code]action()[/code] for each frame before everything else.
 }
 
-## The [BehaviourList] will populate this field with context nodes in which 
+## The [GameObject] will populate this field with context nodes in which 
 ## [code]action()[/code] and [code]condition()[/code] can borrow values from.
 var actors: Dictionary[String, Node]
 
@@ -33,7 +36,7 @@ var actors: Dictionary[String, Node]
 ## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
 ## [code]null[/code] if it wasn't found. If no name is specified, returns
 ## parent node.
-func get_actor(actor_name: String = BehaviourList.PARENT_NODE_ACTOR) -> Node:
+func get_actor(actor_name: String = GameObject.SELF_NODE_ACTOR) -> Node:
 	return actors.get(actor_name, null)
 
 ## Sets this behaviour enabled. 
@@ -43,12 +46,12 @@ func set_enabled(enable: bool) -> void:
 #endregion MANAGING
 #region OVERRIDEABLES
 
-## This method is called automatically by [BehaviourList] once it populates
+## This method is called automatically by [GameObject] once it populates
 ## the [code]actors[/code] variable at runtime.
 func init() -> void:
 	pass
 
-## This method is called automatically by [BehaviourList] where it will test
+## This method is called automatically by [GameObject] where it will test
 ## whether if [code]action()[/code] can be ran.
 @warning_ignore("unused_parameter")
 func condition(delta: float) -> bool:
@@ -58,7 +61,7 @@ func condition(delta: float) -> bool:
 func condition_physics(delta: float) -> bool:
 	return true
 
-## This method is called automatically by [BehaviourList], which provides
+## This method is called automatically by [GameObject], which provides
 ## action for a met criteria given by [code]condition()[/code].
 @warning_ignore("unused_parameter")
 func action(delta: float) -> void:
