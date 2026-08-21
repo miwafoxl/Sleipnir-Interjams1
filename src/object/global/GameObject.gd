@@ -1,18 +1,21 @@
-class_name BehaviourList extends Node
+class_name GameObject extends Node
 
-const PARENT_NODE_ACTOR: String = "parent"
+const SELF_NODE_ACTOR: String = "self"
+
+@warning_ignore("unused_signal")
+signal behaviour_event(event: StringName)
 
 @export var enabled: bool = true
 @export var verbose: bool = false
 @export var actors: Dictionary[String, Node] = {} # Actor ID: Node
 @export var behaviours: Array[Behaviour] = []
 
-# Managed by BehaviourList
+# Managed by GameObject
 var refill_actors: bool = true 
 var vhigh_priority_pool: Array[Behaviour] = [] 
 var high_priority_pool: Array[Behaviour] = []
 var normal_priority_pool: Array[Behaviour] = []
-# End Managed by BehaviourList
+# End Managed by GameObject
 
 
 # Actor -> A node in which the behaviour needs to act upon
@@ -25,62 +28,58 @@ var normal_priority_pool: Array[Behaviour] = []
 
 func _log_standard(message: String) -> void:
 	if not verbose: return
-	print("[BehaviourList]: %s" % [message])
+	print("[GameObject]: %s" % [message])
 
 func _log_warn(message: String) -> void:
 	if not verbose: return
-	push_warning("[BehaviourList]: %s" % [message])
+	push_warning("[GameObject]: %s" % [message])
 
 func _log_err(message: String) -> void:
-	printerr("[BehaviourList]: %s" % [message])
+	printerr("[GameObject]: %s" % [message])
 
 #endregion CONSOLE OUT
 #region MANAGING BEHAVIOURS
 
 # TODO: This is slow as shi*!!!!!!!!!!!!!*
-## Obtains the [BehaviourList] if it's present in [code]node[/code] and returns it.
+## Obtains the [GameObject] if it's present in [code]node[/code] and returns it.
 ## Returns [code]null [/code] if not found.[br]
 ## [codeblock lang=gdscript]
 ## # Does this node have Bullet behaviour?
-## var list := BehaviourList.get_behaviourlist(some_node);
+## var list := GameObject.get_gameobject(some_node);
 ## var bullet_behaviour := list.get_behaviours(&"bullet");
 ## if not behaviours.is_empty(): # It must be a bullet...
 ## 		glass_break()  # Let's shatter!
 ## [/codeblock][br][br]
-## Please use [method BehaviourList.get_behaviour_from] or 
-## [method BehaviourList.has_behaviour] instead.
+## Please use [method GameObject.get_behaviour_from] or 
+## [method GameObject.has_behaviour] instead.
 ## @deprecated
-static func get_behaviourlist(object: Node) -> BehaviourList:
-	var _children: Array[Node] = object.get_children(false)
-	for _node: Node in _children:
-		if _node is BehaviourList:
-			return _node as BehaviourList
-	push_warning("Could not get BehaviourList from object %s" % object.to_string())
+static func get_gameobject(object: Node) -> GameObject:
+	if object is GameObject:
+		return object as GameObject
+	push_warning("Could not get GameObject from object %s" % object.to_string())
 	return null
 
-## Obtains a [Behaviour] from a [Node] that has [BehaviourList]. 
-## Returns [code]null[/code] if BehaviourList isn't present in object.[br]
+## Obtains a [Behaviour] from a [Node] that has [GameObject]. 
+## Returns [code]null[/code] if GameObject isn't present in object.[br]
 ## [codeblock lang=gdscript]
-## var bullet := BehaviourList.get_behaviour_from(some_node, &"bullet");
+## var bullet := GameObject.get_behaviour_from(some_node, &"bullet");
 ## if not bullet == null: # It must be a bullet...
 ## 		bullet.set_speed(36)  # How convenient
 ## [/codeblock]
 static func get_behaviour_from(object: Node, behaviour_name: StringName) -> Behaviour:
 	var _children: Array[Node] = object.get_children(false)
 	var _behaviour: Behaviour = null
-	for _node: Node in _children:
-		if _node is BehaviourList:
-			var _list: BehaviourList = _node as BehaviourList
-			_behaviour = _list.get_behaviour(behaviour_name)
+	if object is GameObject:
+		_behaviour = object.get_behaviour(behaviour_name)
 	if _behaviour == null:
-		push_warning("Could not get BehaviourList from object %s" % object.to_string())
+		push_warning("Could not get GameObject from object %s" % object.to_string())
 	return _behaviour
 
-## Checks whether [code]behaviour_name[/code] is present in a [BehaviourList] of object. 
-## Returns [code]false[/code] if behaviour was not found or BehaviourList isn't 
+## Checks whether [code]behaviour_name[/code] is present in a [GameObject] of object. 
+## Returns [code]false[/code] if behaviour was not found or GameObject isn't 
 ## present in object.[br]
 ## [codeblock lang=gdscript]
-## var toxic: bool = BehaviourList.has_behaviour(some_node, &"toxic");
+## var toxic: bool = GameObject.has_behaviour(some_node, &"toxic");
 ## if toxic:
 ## 		self.poison()
 ## [/codeblock]
@@ -88,13 +87,13 @@ static func has_behaviour(object: Node, behaviour_name: StringName) -> bool:
 	var _children: Array[Node] = object.get_children(false)
 	var _behaviour: Behaviour = null
 	for _node: Node in _children:
-		if _node is BehaviourList:
-			var _list: BehaviourList = _node as BehaviourList
+		if _node is GameObject:
+			var _list: GameObject = _node as GameObject
 			if not _list.get_behaviour(behaviour_name) == null:
 				return true
 	return false
 
-## Set this BehaviourList enabled. A disabled BehaviourList will disable
+## Set this GameObject enabled. A disabled GameObject will disable
 ## all its containing [Behaviour]s.
 func set_enabled(enable: bool) -> void:
 	enabled = enable
@@ -138,17 +137,19 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 
 ## Updates each behaviour with a new [code]actors[/code] value, then runs [code]init()[/code].
 ## This ensures that all behaviours have a reference to the actors array. It's ran
-## automatically by [method BehaviourList.preprocess_behaviours] and other methods.
+## automatically by [method GameObject.preprocess_behaviours] and other methods.
 func refill_behaviours_actors() -> void:
-	actors.set(PARENT_NODE_ACTOR, get_parent())
+	actors.set(SELF_NODE_ACTOR, self)
 	for behaviour: Behaviour in behaviours:
 		behaviour.actors = actors
+		if not behaviour.event.is_connected(dispatch_event):
+			behaviour.event.connect(dispatch_event)
 		behaviour.init()
 
 ## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
 ## [code]null[/code] if it wasn't found. If no name is specified, returns
 ## parent node.
-func get_actor(actor_name: String = PARENT_NODE_ACTOR) -> Node:
+func get_actor(actor_name: String = SELF_NODE_ACTOR) -> Node:
 	return actors.get(actor_name, null)
 
 ## Remove behaviours from list that match [code]actor_name[/code].
@@ -172,9 +173,15 @@ func add_actor(actor_name: String, node: Node, overwrite: bool = true) -> bool:
 	return true
 
 #endregion MANAGING ACTORS
+#region EVENT DISPATCHER
+
+func dispatch_event(event: StringName) -> void:
+	behaviour_event.emit(event)
+
+#endregion EVENT DISPATCHER
 #region BEHAVIOUR CLOCK
 
-## Called automatically by [BehaviourList], sorts behaviours into three different pools: 
+## Called automatically by [GameObject], sorts behaviours into three different pools: 
 ## [b]F_END[/b], [b]F_START[/b] and [b]ALWAYS[/b]. Those are then stored at variables
 ## [code]normal_priority_pool[/code], [code]high_priority_pool[/code] and
 ## [code]vhigh_priority_pool[/code]. [br][br]If behaviours are
@@ -213,8 +220,9 @@ func preprocess_behaviours() -> void:
 	
 var tick_normal: int = 0
 var tick_high: int = 0
-var tick: int = 0 # Not used, mostly for debugging
+var tick: int = -1
 func _process(delta: float) -> void:
+	if tick == -1: return # Disable processing
 	if refill_actors:
 		refill_behaviours_actors()
 		refill_actors = false
@@ -241,6 +249,7 @@ func _process(delta: float) -> void:
 		tick = 0
 
 func _physics_process(delta: float) -> void:
+	if tick == -1: return # Disable processing
 	if refill_actors:
 		refill_behaviours_actors()
 		refill_actors = false
@@ -253,6 +262,9 @@ func _physics_process(delta: float) -> void:
 #region OVERRIDES
 
 func _ready() -> void:
-	preprocess_behaviours()
+	if tick == -1:
+		behaviours = behaviours.duplicate_deep()
+		preprocess_behaviours()
+		tick = 0
 
 #endregion OVERRIDES
