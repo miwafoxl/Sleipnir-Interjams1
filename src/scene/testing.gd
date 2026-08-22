@@ -1,15 +1,22 @@
 extends Node2D
 
-@onready var test: BehaviourList = BehaviourList.get_behaviourlist($Icon3)
+@onready var test: BRotate = GameObject.get_behaviour_from($Icon3, "BRotate")
 
 func _ready() -> void:
-	print_debug(test)
+	test.event.connect(process_event)
+
+func process_event(event: String) -> void:
+	match event:
+		"sound.rotating":
+			SoundBlaster.queue_play("rotating")
+		"sound.stopped":
+			SoundBlaster.queue_play("stopped_rotating")
 
 func _on_icon_but_pressed() -> void:
-	test.add_actor("player", $Icon)
+	test.rotating = $Icon
 
 func _on_icon_2_but_pressed() -> void:
-	test.add_actor("player", $Icon2)
+	test.rotating = $Icon2
 
 func _on_icon_3_but_pressed() -> void:
-	test.add_actor("player", $Icon3)
+	test.rotating = $Icon3

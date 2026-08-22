@@ -2,14 +2,8 @@
 
 [ext_resource type="Texture2D" uid="uid://bmfkonhm682iw" path="res://icon.svg" id="1_1wi6f"]
 [ext_resource type="Script" uid="uid://budfj15tal10q" path="res://src/scene/testing.gd" id="1_xcqgy"]
-[ext_resource type="Script" uid="uid://nurl1ywd3y3f" path="res://src/object/BehaviourList.gd" id="2_7heuu"]
-[ext_resource type="Script" uid="uid://cl5awp6joxymj" path="res://src/resource/Behaviour.gd" id="3_k8gec"]
-[ext_resource type="Script" uid="uid://dlog5hebtnefk" path="res://src/resource/behaviour/BRotate.gd" id="4_huuv1"]
-
-[sub_resource type="Resource" id="Resource_huuv1"]
-script = ExtResource("4_huuv1")
-amount = 0.1
-metadata/_custom_type_script = "uid://dlog5hebtnefk"
+[ext_resource type="Script" uid="uid://xqlj2d4kt16i" path="res://src/node/Object.gd" id="3_k8gec"]
+[ext_resource type="Script" uid="uid://dlog5hebtnefk" path="res://src/behaviour/BRotate.gd" id="4_huuv1"]
 
 [node name="Default" type="Node2D" unique_id=96861762]
 script = ExtResource("1_xcqgy")
@@ -54,16 +48,14 @@ texture = ExtResource("1_1wi6f")
 [node name="Icon2" type="Sprite2D" parent="." unique_id=1343005700]
 position = Vector2(62, 59)
 texture = ExtResource("1_1wi6f")
+script = ExtResource("3_k8gec")
 
 [node name="Icon3" type="Sprite2D" parent="." unique_id=1137830609]
 position = Vector2(576, 317)
 texture = ExtResource("1_1wi6f")
-
-[node name="BehaviourList" type="Node" parent="Icon3" unique_id=1251891214]
-script = ExtResource("2_7heuu")
+script = ExtResource("3_k8gec")
 verbose = true
-behaviours = Array[ExtResource("3_k8gec")]([SubResource("Resource_huuv1")])
-metadata/_custom_type_script = "uid://nurl1ywd3y3f"
+scripts = Array[GDScript]([ExtResource("4_huuv1")])
 
 [connection signal="pressed" from="icon1but" to="." method="_on_icon_but_pressed"]
 [connection signal="pressed" from="icon2but" to="." method="_on_icon_2_but_pressed"]
