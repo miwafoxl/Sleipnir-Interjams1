@@ -5,14 +5,12 @@ class_name BRotate extends Behaviour
 var rotating: Sprite2D
 
 func init() -> void:
-	var _rotator: Sprite2D = get_actor("rotate")
-	if _rotator == null:
-		rotating = get_actor() as Sprite2D
-		return
-	rotating = _rotator
+	if rotating == null:
+		rotating = actor
 
 func condition(_delta: float) -> bool:
 	return true
 
 func action(_delta: float) -> void:
 	rotating.rotate(-amount)
+	event.emit("sound.rotating")

@@ -7,11 +7,12 @@ signal behaviour_event(event: StringName)
 
 @export var enabled: bool = true
 @export var verbose: bool = false
-@export var actors: Dictionary[String, Node] = {} # Actor ID: Node
-@export var behaviours: Array[Behaviour] = []
+@export var scripts: Array[GDScript]
 
 # Managed by GameObject
-var refill_actors: bool = true 
+#var behaviours: Array[Behaviour] = []
+var behaviours: Dictionary[String, Behaviour] = {}
+var do_behaviour_init: bool = true 
 var vhigh_priority_pool: Array[Behaviour] = [] 
 var high_priority_pool: Array[Behaviour] = []
 var normal_priority_pool: Array[Behaviour] = []
@@ -66,13 +67,12 @@ static func get_gameobject(object: Node) -> GameObject:
 ## if not bullet == null: # It must be a bullet...
 ## 		bullet.set_speed(36)  # How convenient
 ## [/codeblock]
-static func get_behaviour_from(object: Node, behaviour_name: StringName) -> Behaviour:
-	var _children: Array[Node] = object.get_children(false)
+static func get_behaviour_from(object: Node, tag: String) -> Behaviour:
 	var _behaviour: Behaviour = null
 	if object is GameObject:
-		_behaviour = object.get_behaviour(behaviour_name)
+		_behaviour = object.get_behaviour(tag)
 	if _behaviour == null:
-		push_warning("Could not get GameObject from object %s" % object.to_string())
+		push_warning("Could not get behaviour '%s' from object %s" % [tag, object.get_path()])
 	return _behaviour
 
 ## Checks whether [code]behaviour_name[/code] is present in a [GameObject] of object. 
@@ -83,14 +83,12 @@ static func get_behaviour_from(object: Node, behaviour_name: StringName) -> Beha
 ## if toxic:
 ## 		self.poison()
 ## [/codeblock]
-static func has_behaviour(object: Node, behaviour_name: StringName) -> bool:
-	var _children: Array[Node] = object.get_children(false)
+static func has_behaviour(object: Node, tag: String) -> bool:
 	var _behaviour: Behaviour = null
-	for _node: Node in _children:
-		if _node is GameObject:
-			var _list: GameObject = _node as GameObject
-			if not _list.get_behaviour(behaviour_name) == null:
-				return true
+	if object is GameObject:
+		var _gameobject: GameObject = object as GameObject
+		if not _gameobject.get_behaviour(tag) == null:
+			return true
 	return false
 
 ## Set this GameObject enabled. A disabled GameObject will disable
@@ -98,39 +96,42 @@ static func has_behaviour(object: Node, behaviour_name: StringName) -> bool:
 func set_enabled(enable: bool) -> void:
 	enabled = enable
 
-## Obtains a single behaviour that match [code]behaviour_name[/code]. Returns null
+## Obtains a single behaviour that match [code]tag[/code]. Returns null
 ## if no match was found.
-func get_behaviour(behaviour_name: StringName = &"") -> Behaviour:
-	for behaviour: Behaviour in behaviours:
-		if behaviour.name == behaviour_name:
-			return behaviour
-	return null
+func get_behaviour(tag: String = "") -> Behaviour:
+	return behaviours.get(tag, null)
 
-## Obtains all behaviours that match [code]behaviour_name[/code]. Returns an empty
-## [Array] if no match was found.
-func get_behaviours(behaviour_name: StringName = &"") -> Array[Behaviour]:
-	if behaviour_name.is_empty(): return behaviours
+## Obtains all behaviours that matches [code]expr[/code]. Returns an empty
+## [Array] if none matched.
+func get_behaviour_match(expr: String = "") -> Array[Behaviour]:
 	var _selected: Array[Behaviour] = []
-	for behaviour: Behaviour in behaviours:
-		if behaviour.name == behaviour_name:
-			_selected.append(behaviour)
+	for behaviour_tag: String in behaviours.keys():
+		if behaviour_tag.match(expr):
+			_selected.append(behaviours.get(behaviour_tag))
 	return _selected
 
-## Remove behaviours from list that match [code]behaviour_name[/code].
-func remove_behaviours(behaviour_name: StringName = &"") -> void:
-	if name.is_empty(): return
-	var _count = behaviours.count(behaviour_name)
-	var _remove: Callable = func(_b: Behaviour) -> bool:
-		return not _b.name == behaviour_name
-	behaviours = behaviours.filter(_remove)
-	_log_standard("Removed %s '%s' behaviour(s)." % [_count, behaviour_name])
+## Remove behaviours from list that match [code]tag[/code].
+#func remove_behaviours(tag: StringName = &"") -> void:
+	#if tag.is_empty(): return
+	#var _count = behaviours.count(tag)
+	#var _remove: Callable = func(_b: Behaviour) -> bool:
+		#return not _b.name == tag
+	#behaviours = behaviours.filter(_remove)
+	#_log_standard("Removed %s '%s' behaviour(s)." % [_count, tag])
 
 ## Insert the behaviour [code]behaviour[/code] following the index [code]at_index[/code].
 ## If negative, the value will be considered from the end of the array.
-func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
+func insert_behaviour(behaviour: Behaviour, tag: String) -> bool:
+	var _script: GDScript = behaviour.get_script()
+	var _name: String = tag
+	if _script == null:
+		return false
+	if tag.is_empty():
+		_name = _script.get_global_name().to_lower()
 	preprocess_behaviours.call_deferred()
+	add_script(_script, _name)
 	_log_standard("Inserted behaviour '%s'" % behaviour.name)
-	return OK == behaviours.insert(at_index, behaviour)
+	return behaviours.set(_name, behaviour)
 	
 #endregion MANAGING BEHAVIOURS
 #region MANAGING ACTORS
@@ -138,41 +139,13 @@ func insert_behaviour(behaviour: Behaviour, at_index: int = -1) -> bool:
 ## Updates each behaviour with a new [code]actors[/code] value, then runs [code]init()[/code].
 ## This ensures that all behaviours have a reference to the actors array. It's ran
 ## automatically by [method GameObject.preprocess_behaviours] and other methods.
-func refill_behaviours_actors() -> void:
-	actors.set(SELF_NODE_ACTOR, self)
-	for behaviour: Behaviour in behaviours:
-		behaviour.actors = actors
+func init_behaviours(behaviour_array: Array[Behaviour]) -> void:
+	for behaviour: Behaviour in behaviour_array:
+		behaviour.actor = self
 		if not behaviour.event.is_connected(dispatch_event):
 			behaviour.event.connect(dispatch_event)
 		behaviour.init()
 
-## Gets actor [code]actor_name[/code] present in actors dictionary. Returns 
-## [code]null[/code] if it wasn't found. If no name is specified, returns
-## parent node.
-func get_actor(actor_name: String = SELF_NODE_ACTOR) -> Node:
-	return actors.get(actor_name, null)
-
-## Remove behaviours from list that match [code]actor_name[/code].
-func remove_actor(actor_name: String) -> void:
-	if not actors.erase(actor_name):
-		return _log_warn("Actor '%s' wasn't removed - Wasn't in actors" % actor_name)
-	_log_standard("Removed actor '%s'" % actor_name)
-	refill_behaviours_actors()
-
-## Adds a new actor [code]actor_name[/code] with [code]node[/code] value that can be accessed
-## by behaviours (See [method Behaviour.get_actor]). If [code]overwrite[/code] is true, 
-## overwrites on top of existing data. Returns true if operation was successful.
-func add_actor(actor_name: String, node: Node, overwrite: bool = true) -> bool:
-	var _can_overwrite: bool = actors.has(actor_name)
-	if _can_overwrite and not overwrite:
-		return true
-	if not actors.set(actor_name, node):
-		return false
-	_log_standard("Added actor '%s' %s" % [actor_name, ["", "(overwritten)"][_can_overwrite as int]])
-	refill_behaviours_actors()
-	return true
-
-#endregion MANAGING ACTORS
 #region EVENT DISPATCHER
 
 func dispatch_event(event: StringName) -> void:
@@ -188,19 +161,19 @@ func dispatch_event(event: StringName) -> void:
 ## set to [code]AUTOMATIC[/code], it will try to balance [code]normal_priority_pool[/code]
 ## and [code]high_priority_pool[/code] array sizes evenly in an effort to minimize the
 ## the behaviour clock from favoring a single behaviour by checking it every frame.
-func preprocess_behaviours() -> void:
+func preprocess_behaviours() -> int:
 	var _auto: bool = false
 	var _high_priority_spool: Array[Behaviour] = [] # Subpool
 	var _normal_priority_spool: Array[Behaviour] = [] # Subpool
-	if behaviours.is_empty(): return
-	for _b: Behaviour in behaviours:
+	if behaviours.is_empty(): return -1
+	for _b: Behaviour in behaviours.values():
 		if _b.enabled:
 			match _b.process:
-				Behaviour.ProcessMode.F_END:
+				Behaviour.BehaviourMode.F_END:
 					normal_priority_pool.append(_b)
-				Behaviour.ProcessMode.F_START:
+				Behaviour.BehaviourMode.F_START:
 					high_priority_pool.append(_b)
-				Behaviour.ProcessMode.ALWAYS:
+				Behaviour.BehaviourMode.ALWAYS:
 					vhigh_priority_pool.append(_b)
 				_:
 					if _auto:
@@ -214,18 +187,19 @@ func preprocess_behaviours() -> void:
 	for _b: Behaviour in _normal_priority_spool:
 		normal_priority_pool.append(_b)
 	_log_standard( \
-		"Behaviours Preprocess:\n-F_END: %s\nF_START: %s\nALWAYS: %s" % \
+		"Behaviours Preprocess:\n\t-F_END: %s\n\tF_START: %s\n\tALWAYS: %s" % \
 		[normal_priority_pool, high_priority_pool, vhigh_priority_pool])
 	tick_normal = 0; tick_high = 0 # Reset ticks
+	return 0
 	
 var tick_normal: int = 0
 var tick_high: int = 0
 var tick: int = -1
 func _process(delta: float) -> void:
 	if tick == -1: return # Disable processing
-	if refill_actors:
-		refill_behaviours_actors()
-		refill_actors = false
+	if do_behaviour_init:
+		init_behaviours(behaviours.values())
+		do_behaviour_init = false
 	if not vhigh_priority_pool.is_empty():
 		for _b: Behaviour in vhigh_priority_pool:
 			if _b.enabled and _b.condition(delta): 
@@ -250,21 +224,40 @@ func _process(delta: float) -> void:
 
 func _physics_process(delta: float) -> void:
 	if tick == -1: return # Disable processing
-	if refill_actors:
-		refill_behaviours_actors()
-		refill_actors = false
+	if do_behaviour_init:
+		init_behaviours(behaviours.values())
+		do_behaviour_init = false
 	if not behaviours.is_empty():
-		for _b: Behaviour in behaviours:
+		for _b: Behaviour in behaviours.values():
 			if _b.enabled and _b.condition_physics(delta): 
 				_b.action_physics(delta)
 
 #endregion BEHAVIOUR CLOCK
+#region
+
+func add_script(script: GDScript, tag: String) -> bool:
+	var _node: Node = Node.new()
+	_node.set_script(script)
+	if _node is Behaviour:
+		var _behaviour: Behaviour = _node
+		behaviours.set(tag, _behaviour)
+		add_child(_node, false, Node.INTERNAL_MODE_FRONT)
+		return true
+	return false
+
+#endregion SCRIPTS
 #region OVERRIDES
 
 func _ready() -> void:
+	# Transform scripts into Behaviours
+	_log_standard("Logging GameObject at %s" % self.get_path())
+	for i in scripts.size():
+		var _script: GDScript = scripts[i]
+		var _tag: String = _script.get_global_name()
+		if not add_script(_script, _tag):
+			_log_err("Script %s at index %s does not extend class Behaviour" % [_tag, i])
+	# Duplicate behaviours and pre-process before running
 	if tick == -1:
-		behaviours = behaviours.duplicate_deep()
-		preprocess_behaviours()
-		tick = 0
-
+		tick = preprocess_behaviours()
+	
 #endregion OVERRIDES
